@@ -1,0 +1,50 @@
+@startuml
+
+interface HystrixEvent
+note left: marker interface, no member
+
+Abstract class HystrixCommandEvent{
+	- HystrixCommandKey commandKey
+    - HystrixTreadPoolKey threadpoolKey
+    {static} + Function filterCompletionsOnly
+    {static} + Function filterActualExecutions
+    
+    + getCommandKey()
+    + getThreadPoolKey()
+    
+    {abstract} + isExecutionStart()
+    {abstract} + isExecuteddInThread()
+    {abstract} + isCommandCompletion()
+    {abstract} + isResponseThreadPoolRejected()
+    {abstract} + didCOmmandExecute()
+    
+}
+
+note right: Data class that comprises the event stream for Hystrix command executions.
+
+
+class HystrixCommandCompletion{
+	- ExecutionResult executionResult
+    - HystrixRequestContext requestConetxt
+    
+    + getRequestContext()
+    + getEventCounts()
+    + getTotalLatency()
+    + getExecutionLatency()
+}
+note bottom: Data class which gets fed into event stream when a command completes (with any of the outcomes in {@link HystrixEventType}).
+class HystrixCommandExecutionStarted{
+	- int currentConcurrency
+    - ExecutionIsolationStrategy isolationStrategy
+    
+    + getCurrentConcurrency()
+}
+note bottom: Data class that get fed to event stream when a command starts executing.
+
+
+HystrixEvent <|-- HystrixCommandEvent
+
+HystrixCommandEvent <|--HystrixCommandCompletion
+HystrixCommandEvent <|--HystrixCommandExecutionStarted
+
+@enduml

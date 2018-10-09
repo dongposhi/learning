@@ -1,0 +1,30 @@
+@startuml
+
+abstract class HystrixMetrics{
+	+ getCumulativeCount(HystrixRollingNumberEvent event)
+    + getRollingCount(HystrixRollingNumberEvent event)
+}
+
+class HystrixRollingNumber {
+	+ getCumulativeCount(HystrixRollingNumberEvent event)
+    + getRollingCount(HystrixRollingNumberEvent event)
+}
+class HystrixThreadPoolMetrics {
+	- ThreadPoolExecutor threadPool
+}
+
+
+class RollingThreadPoolEventCounterStream{
+}
+class CumulativeThreadPoolEventCounterStream{
+}
+class RollingThreadPoolMaxConcurrencyStream{
+}
+
+HystrixMetrics <|-- HystrixThreadPoolMetrics
+HystrixMetrics o-- HystrixRollingNumber
+
+HystrixThreadPoolMetrics o-- RollingThreadPoolEventCounterStream
+HystrixThreadPoolMetrics o-- CumulativeThreadPoolEventCounterStream
+HystrixThreadPoolMetrics o-- RollingThreadPoolMaxConcurrencyStream
+@enduml

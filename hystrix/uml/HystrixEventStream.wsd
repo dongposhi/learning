@@ -1,0 +1,77 @@
+@startuml
+
+interface HystrixEventStream<E extends HystrixEvent>{
+	+ Observable observe();
+}
+
+
+abstract class BucketCounterStream{
+
+    Observable bucketStream
+    Function reduceBucketToSummary
+    BehaviorSubject counterSubject
+    
+	+ getLatest()
+    + unsubscribe()
+    + startCachingStreamValuesIfUnstarted()
+	+ {abstract} observe()
+    
+    {abstract} getEmptyBucketSummary()
+    {abstract} getOutputValue()
+}
+
+
+note left
+* 基于Rx 的Observer 设计的类
+* 这个类接受HystrixEventStream 做为基础数据结构。
+* 构造函数中提供基本的stream 行为规范
+	# impl reduceBucketToSummary
+ 	# observable.window.flatmap.startsWith 
+end note
+
+BucketCounterStream -right- HystrixEventStream :< provide bucketStream
+
+abstract class BucketedRollingCounterStream <Event extends HystrixEvent, Bucket, Output>{
+	Observable sourceStream
+	+ observe()
+}
+
+abstract class BucketedCumulativeCounterStream <Event extends HystrixEvent, Bucket, Output>{
+	Observable sourceStream
+	+ observe()
+}
+
+note as N1
+* 进一步规范Observable 的行为 产生出差异
+	# impl reduceBucketToSummary
+ 	# 参考构造函数
+end note
+
+
+note as N2
+将模板类具化
+end note
+
+BucketedRollingCounterStream .left. N1 
+N1 .left. BucketedCumulativeCounterStream
+
+class RollingThreadPoolEventCounterStream{
+	+ getEmptyBucketSummary()
+    + getEmptyOutputValue()
+    + getLatestCount()
+}
+class CumulativeThreadPoolEventCounterStream{
+	+ getEmptyBucketSummary()
+    + getEmptyOutputValue()
+    + getLatestCount()
+}
+
+
+RollingThreadPoolEventCounterStream .left. N2 
+N2 .left. CumulativeThreadPoolEventCounterStream
+
+BucketCounterStream <|-- BucketedRollingCounterStream
+BucketCounterStream <|-- BucketedCumulativeCounterStream
+BucketedRollingCounterStream  <|-- RollingThreadPoolEventCounterStream
+BucketedCumulativeCounterStream <|-- CumulativeThreadPoolEventCounterStream
+@enduml

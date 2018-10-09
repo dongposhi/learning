@@ -1,0 +1,36 @@
+
+@startuml
+
+interface HystrixInvokable
+interface HystrixObservable{
+	+ Observable observe()
+    + Observable toObserve()
+}
+note left: provide Rx based async interface
+
+interface HystrixInvokableInfo
+note top: meta info
+
+abstract class AbstractCommand{
+}
+
+abstract class HystrixCommand{
+	{abstract} run()   
+    - AtomicReference<Thread> executionThread
+    - AtomicBoolean interruptOnFutureCancel
+}
+
+interface HystrixExecutable {
+	+ execute()
+    + Future queue()
+}
+note right: provide sync interface
+
+HystrixInvokable <|-- HystrixObservable
+HystrixInvokable <|-- HystrixExecutable
+HystrixInvokableInfo <|-- AbstractCommand
+
+HystrixObservable <|-- AbstractCommand
+AbstractCommand <|-- HystrixCommand
+HystrixExecutable <|-- HystrixCommand
+@enduml

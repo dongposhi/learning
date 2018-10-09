@@ -1,0 +1,33 @@
+@startuml
+
+class HystrixCircuitBreaker
+class HystrixThreadPool
+class HystrixThreadPoolKey
+class HystrixCommandProperties
+class HystrixCommandMetrics
+class HystrixCommandKey
+class HystrixRequestCache
+class HystrixRequestLog
+class HystrixEventNotifier
+class HystrixConcurrencyStrategy
+class HystrixCommandExecutionHook
+
+
+abstract class AbstractCommand{
+- commandState
+- threadState
+- executionResult
+}
+
+AbstractCommand o-- HystrixCircuitBreaker
+AbstractCommand o-- HystrixThreadPool
+AbstractCommand o-- HystrixCommandMetrics
+AbstractCommand o-- HystrixRequestCache
+AbstractCommand o-- HystrixRequestLog
+AbstractCommand o-- HystrixEventNotifier
+AbstractCommand o-- HystrixConcurrencyStrategy
+AbstractCommand o-- HystrixCommandExecutionHook
+
+
+
+@enduml
