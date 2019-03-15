@@ -30,6 +30,9 @@ DataFrame 不仅有比RDD更多的算子，还可以进行执行计划的优化�
 exchange the partition across the cluster. It's action of wide dependency.
 Shuffle描述着数据从map task输出到reduce task输入的这段过程。在分布式情况下，reduce task需要跨节点去拉取其它节点上的map task结果。这一过程将会产生网络资源消耗和内存，磁盘IO的消耗。
 
+
+在Map阶段，k-v溢写时，采用的正是快排；而溢出文件的合并使用的则是归并；在Reduce阶段，通过shuffle从Map获取的文件进行合并的时候采用的也是归并；最后阶段则使用了堆排作最后的合并过程。
+
 ### Stage & Task
 发生箭头交叉就形成一个stage，其中与伴随这shuffle操作， stage 是 taskset
 ### 算子
@@ -42,8 +45,14 @@ https://blog.csdn.net/csdnliuxin123524/article/details/81875800
 ### 窄依赖，宽依赖
 - 只是针对transformation 而言
 
+### coarse-grained & fine-grained
+这实际上是不同的分布式计算所采用的策略比较而得到的一个称呼。一下分布式处理采用的是 基本单元（等同于RDD）可变的模型。数据集随计算而变。这种改变的方式被称为**细粒度**
+
+而对于Spark 而言，采用的函数式编程的**不可变**数据集的处理方式。每次变化都是产生一个新的数据集而不是在原有的数据集上做修改。相对而言，这种方式是已数据集为基本变化单位，所以是**粗粒度**的。
+
+不可变数据集带来了高容错的设计优势，降低的复杂性。
 ## FAQ
-### 1. Does the spark has daemon process on the cluster? both for driver and executor?
+### **Does the spark has daemon process on the cluster? both for driver and executor?**  
 From my understanding, there's no such daemon process. Each Spark application has its own expectation for resources. It's defined in configuration for each application. When the application is submitted to the cluster manager(local, yarn, mesos). The requirement for resources is submitted to yarn, mesos. They (yarn, mesos) will assign resource to support the application.
 
 Above understanding may not be true. In the test, when you create a cluster, the cluster has a SparkUI. A cluster should be connected with many spark sessions.
@@ -58,11 +67,3 @@ When I test spark on local manager. After I closed the sparksession by stopping 
 
 -   选用一些工具统一部署 spark cluster；
 -   在提交 spark 应用的时候，指定应用依赖的相关包，把 应用代码，应用依赖包 一起分发到 worker；
-<!--stackedit_data:
-eyJoaXN0b3J5IjpbMjA2OTczNzYwLC0xMTYxMDIzMjA0LC0xMj
-M4OTk3NjE1LDY2NjQ3OTE2Niw2ODEyMTA4NzgsLTE0MjUwMTM3
-NDIsNDkzODc3OTQyLC04NDM4NTk0MjIsLTIwMDI4ODgzMzUsMT
-AyMTkzNjg3NCwxNDY5NzA1NjI4LC0zMDAzOTI4NjQsLTI4MjIz
-NjM0LDExNTc4MzEzNzEsLTEzNzQ4Nzc5MjgsNzMwOTk4MTE2XX
-0=
--->
