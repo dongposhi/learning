@@ -22,15 +22,20 @@ I finished the technical design on UCP and lead the implementation. The work inv
   - https://cr.amazon.com/r/7891481/
   - https://cr.amazon.com/r/7761655/
 
-## Design and Implementation of UCP's core components - XBorderDataAggregatorService and XBorderOrderInfoDeclarationService
-GS team built the [UCP(Unified Clearance Platform, it provides customs clearance service for crossboarder business)](https://w.amazon.com/bin/view/CNTechAGS/Projects/New_CERI/#XBorderDataAggregatorService) from scratch to support various clearance channels. I took two core services design and implementation.
+## Lanching CERI clearance channel for GS
 
-- **XBorderOrderInfoDeclarationService** The service serves to submit order data to customs agents. The service defined a framework of communciating with them. The framework encapuslates the low level commnication functions and defines the high level interfaces for pluin extension. It supports both sync submitting and trap receipt capability with customs agents. SDE can implments the plugin for each clearance agents which has its own protocol and data requirement with low cost.
+[The project](https://w.amazon.com/bin/view/CNTechAGS/Projects/New_CERI/) launched the CERI clearance channel for GS in CN.
 
+In the project, our team built the Unified Clearance Platform(the following is called UCP) to cover both CERI and PCR clearance mode. I delivered two core services in the project - **XBorderDataAggregatorService** and **XBorderOrderInfoDeclarationService** - from design to implementation.
 
-  I finished the SHANGHAI CBT agent. And other workmates finished other plugins on GUANGZHOU, NINGBO based on the framework within short time (less than 1 person month).
+- **XBorderOrderInfoDeclarationService** The service serves to submit order data to customs agents. 
+- **XBorderDataAggregatorSerivce** The service is the data provider of clearance data. It integrates 6+ external dependcy services.  The service also severs as a data source of [Unified Settlement Platform](https://w.amazon.com/bin/view/CNTech/LastMile/USP/) of payment team.
 
-- **XBorderDataAggregatorSerivce** The service is the data provider of clearance data. It involves 3 main systems (checkout, shipment, payment) in Retail system, 6+ services as PCE/OMS, HOPS, VBS, KYC, TokenatorIntegrationService, AddressService. The service integrated different data sources. The service also severs as a data source of [Unified Settlement Platform](https://w.amazon.com/bin/view/CNTech/LastMile/USP/)
+In the project, we faced the extensible problem. As business required, UCP has to onboard more than 1 customs agents(e.g. SHANGHAI, GUANGZHOU etc.). Each customs agent has its own commnication channel and protocol. So the service has to be easy to expand to new local customs office. It's not acceptable to spend the same effort as current project. Another challenge is that the consistency issue of protocol's implementaion. In any system, more interfaces means more communciating issue. The services need to provide fault tolerance and analysis tools to solve operation issues.
+
+The service **XBorderOrderInfoDeclarationService** defined a plugin-like framework to solve External extensible issue. The framework encapuslates the low level communication functions and defines the high level interfaces for pluin extension. It supports both sync submitting and trap receipt capability with customs agents. For onboarding a new customs office, SDE only need to parse the specific protocol and map it to system's abstract concepts. In the service, we designed the retry mechinism by leveraging the SQS's DLQ to provide fault tolerance and simplified the maintain operations as redriving the DLQ. With the service **XBorderDataAggregatorSerivce**, internal services are wrappered in an unified way to provide source data. Based on the strategy pattern, the service picked the right source clearance data for each order.
+
+After project launch, 93% GS packages switched to CERI clearacne channel from PCR channel. It saved both time and cost. Average clearance time is reduced to less 0.5 day from PCR's 3 days. Average duty rate is reduced to 11.2% from PCR's 30%. With the framework design, the onboarding of GUANGZHOU and NINGBO and ZHONGTONG in afterward projects becomes as easy as expected. Each plugin was finished by a junior SDE with in 3 weeks.
 
 ### Techinical Artifacts
 
@@ -58,3 +63,16 @@ I tooked 2 parts work in the project.
 
 - https://code.amazon.com/reviews/CR-3819852
 - https://w.amazon.com/bin/view/CNTechAGS/Projects/New_CERI/transportChannelDesign/
+
+
+### FTZ project \<TBD>
+
+## Discussion with Wanp
+
+### 2019-03-25 first
+1. All projects need to add result section
+2. Need improve challenge description
+3. Add FTZ project, get feedback from Qingping for Wireless.
+4. Need improve visiblity in future
+   1. Talk with payment PM
+   2. Talk with compliance Carter

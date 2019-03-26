@@ -10,6 +10,10 @@
 
 窄依赖里面的运算符可以被pipeline在一起（不需要shuffle），用**一个Task**直接计算
 
+- 一个典型的Spark 基于RDD 的数据处理过程
+
+![RDD 的一个典型使用方式](https://pic4.zhimg.com/v2-ef213d25d637aa989b1e0ffea319d903_r.jpg)
+
 
 
 
