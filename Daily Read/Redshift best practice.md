@@ -11,17 +11,19 @@
 - Redshift 支持partition 吗？
 	- 不支持，而且不在RoadMap里。Redshift 提供解决问题的不同思路。spectrum （mainly）和 distKey 都是Redshift 提供的解决方案 
 - Redshift 支持update 操作吗？
-	- 支持，单不是正常的用法
+	- 支持，但不是正常的用法
 - 在从dynamDB 向redshift 导入数据时，支持条件控制吗？
   - 不支持 
 - 什么是sort key，distribution key？
 - 什么是fact table, dimension table？
+  - https://www.cnblogs.com/qlee/archive/2011/04/09/2010164.html
 - cluster，node，slice 和tables 是什么关系？
 - tables 之间要做join 必须在一个cluster 上吗？如果跨cluster进行table join 可行的话，distribute style 的选择怎么影响这种join？ 跨database 可以进行join 吗？
 	- 这种需求是不正常的。正确的手段是 cluster->database->schema. 跨schema 是可以join 的，通过schema 来隔离业务数据。
 - redshift 中的数据生命周期是怎样的？
 - redshift 中的表支持索引吗？如何支持？
 	- 不支持，DW 一般都是column 数据库。sort key 是一种解决方案
+	- Redshift 这种数据参考通常是通过多表写入（1 Fact table, m 个Dimension table）来支持多条件的查询。
 
 ## Overview of Redshift
 ![enter image description here](https://docs.aws.amazon.com/redshift/latest/dg/images/02-NodeRelationships.png)
